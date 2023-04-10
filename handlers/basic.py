@@ -87,6 +87,17 @@ async def basic_handler(message):  # TODO: put handling of every pipeline to fun
             await handler(message)
 
     if hnd_ctrl.get_handler_type(user_id) == "edit_proj":
+        if message.text == "/stop":
+            hnd_ctrl.next_handler(user_id)
+            handler = hnd_ctrl.get_handler(user_id)
+            hnd_ctrl.complete_pipeline(user_id)
+            await handler(message)
+            return
         handler = hnd_ctrl.get_handler(user_id)
-        hnd_ctrl.next_handler(user_id)
-        await handler(message)
+        if isinstance(handler, tuple):
+            if message.photo:
+                handler = handler[1]
+                await handler(message)
+        else:
+            hnd_ctrl.next_handler(user_id)
+            await handler(message)

@@ -5,7 +5,6 @@ from datetime import datetime
 
 
 class StatMiddleware(BaseMiddleware):
-
     def __init__(self):
         super(StatMiddleware, self).__init__()
 

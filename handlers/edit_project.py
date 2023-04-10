@@ -1,7 +1,8 @@
-from create_bot import bot, hnd_ctrl, sstorage, CONFIG_TEMPLATE
+from create_bot import bot, hnd_ctrl, upl_status, sstorage, CONFIG_TEMPLATE, USER_DATA
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
 from aiogram.types.inline_keyboard import InlineKeyboardMarkup, InlineKeyboardButton
 from json_config import set_font_size, set_indent_size
+from utils import path_join
 
 
 def register_edit_proj_callback_handlers(dp):
@@ -10,6 +11,9 @@ def register_edit_proj_callback_handlers(dp):
     )
     dp.register_callback_query_handler(
         edit_font_size_callback_handler, lambda c: c.data == "edit_font_size"
+    )
+    dp.register_callback_query_handler(
+        add_pages_callback_handler, lambda c: c.data == "edit_add_pages"
     )
     dp.register_callback_query_handler(
         small_font_size, lambda c: c.data == "set_small_font_size"
@@ -39,12 +43,32 @@ async def get_project_title(message):
     msg1 = f"Start editing project '{message.text}'\n"
     msg2 = "Choose option to edit"
 
-    inkb1 = InlineKeyboardButton("Offset", callback_data="edit_offset")
-    inkb2 = InlineKeyboardButton("Font size", callback_data="edit_font_size")
-    inkm = InlineKeyboardMarkup().row(inkb1, inkb2)
+    inkm = InlineKeyboardMarkup().row(
+        InlineKeyboardButton("Offset", callback_data="edit_offset"),
+        InlineKeyboardButton("Font size", callback_data="edit_font_size"),
+        InlineKeyboardButton("Add pages", callback_data="edit_add_pages"),
+    )
 
     await message.answer(msg1, reply_markup=ReplyKeyboardRemove())
     await message.answer(msg2, reply_markup=inkm)
+
+
+async def add_pages_callback_handler(callback_q):
+    user_id = callback_q.from_user.id
+
+    hnd_ctrl.next_handler(user_id)
+
+    upl_status.start_upload(
+        user_id,
+        path_join(
+            USER_DATA, user_id, sstorage.get_data(user_id, "editable_project"), "images"
+        ),
+    )
+
+    await bot.answer_callback_query(callback_q.id)
+    await bot.send_message(
+        user_id, "Send additional images or plain text to add it to the end"
+    )
 
 
 async def edit_offset_callback_handler(callback_q):

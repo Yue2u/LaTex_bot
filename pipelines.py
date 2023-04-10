@@ -6,7 +6,10 @@ from handlers.convert import (
     stop_downloading_handler,
 )
 from handlers.new_proj import np_start, np_title_handler, np_offset_input_handler
-from handlers.edit_project import get_project_title, offset_input_handler
+from handlers.edit_project import (
+    get_project_title,
+    offset_input_handler,
+)
 
 
 convert_pipeline = HandlersPipeline(
@@ -24,7 +27,13 @@ new_proj_pipeline = HandlersPipeline(
     ),
 )
 edit_proj_pipeline = HandlersPipeline(
-    "edit_proj", (get_project_title, offset_input_handler)
+    "edit_proj",
+    (
+        get_project_title,
+        offset_input_handler,
+        (handle_albums, pictures_handler),
+        stop_downloading_handler,
+    ),
 )
 
 pipelines_table = {
