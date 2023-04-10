@@ -1,5 +1,5 @@
 from aiogram import types
-from .utils import (
+from utils import (
     files_in_dir,
     get_ext,
     path_join,
@@ -7,6 +7,7 @@ from .utils import (
     recreate_folder,
     basement,
 )
+from json_config import init_project_config
 from tex_to_pdf import make_pdf
 from create_bot import bot, upl_status, USER_DATA
 
@@ -27,7 +28,7 @@ async def convert_message(message: types.Message):
     user_id = message.chat.id
     upl_status.start_upload(user_id, path_join(USER_DATA, user_id, "tmp", "images"))
 
-    await recreate_folder(basement(upl_status.get_path(user_id)))
+    recreate_folder(basement(upl_status.get_path(user_id)))
 
     msg = "Send pictures of conspect in right order, please.\n"
     msg += "Type /stop to stop uploading files"
@@ -42,6 +43,12 @@ async def stop_downloading_handler(message):  # TODO: make convertation
     msg += f"Uploaded {upl_status.uploads_count(message.chat.id)} pictures"
     await message.answer(msg)
     await message.answer("Converting...")
+
+    init_project_config(
+        path_join(
+            basement(upl_status.get_path(message.chat.id)), "jsons", "config.json"
+        )
+    )
     # pdf_path = await convert(upl_status.get_path(message.chat.id))
     # message.answer_documnet(types.InputFile(pdf_path))
 
@@ -53,8 +60,8 @@ async def convert(path):
 
 async def save_files(files_id, user_id, path):
     usr_data_p = path
-    await create_folder(usr_data_p)
-    start_point = 1 + await files_in_dir(usr_data_p)
+    create_folder(usr_data_p)
+    start_point = 1 + files_in_dir(usr_data_p)
 
     for n, file_id in enumerate(files_id, start_point):
         file = await bot.get_file(file_id)
