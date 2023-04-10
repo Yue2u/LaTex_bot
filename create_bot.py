@@ -14,6 +14,7 @@ CONFIG_TEMPLATE = path_join(
     "jsons",
     "config.json",
 )
+DEBUG = False
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
