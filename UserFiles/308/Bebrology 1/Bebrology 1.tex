@@ -1,0 +1,26 @@
+\documentclass[14pt]{extarticle}%
+\usepackage[T1, T2A]{fontenc}%
+\usepackage[utf8]{inputenc}%
+\usepackage{lmodern}%
+\usepackage{textcomp}%
+\usepackage{lastpage}%
+\usepackage{extsizes}%
+\usepackage[a4paper,margin=20mm]{geometry}%
+\usepackage{indentfirst}%
+\usepackage{subfiles}%
+\usepackage[russian,english]{babel}%
+%
+\title{Bebrology 1}%
+%
+\begin{document}%
+\normalsize%
+\maketitle%
+\section{Это раздел из основного документа}%
+\label{sec:}%
+Проверка русского текста. Этот раздел можно убрать. %
+Дальше идут разделы добавленные с помощью add\_section
+
+%
+\subfile{./sections/0.tex}%
+\subfile{./sections/1.tex}%
+\end{document}
