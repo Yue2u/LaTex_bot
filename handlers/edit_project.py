@@ -67,7 +67,7 @@ async def add_pages_callback_handler(callback_q):
 
     await bot.answer_callback_query(callback_q.id)
     await bot.send_message(
-        user_id, "Send additional images or plain text to add it to the end"
+        user_id, "Send additional images to add it to the end"
     )
 
 
