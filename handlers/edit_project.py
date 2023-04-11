@@ -63,8 +63,11 @@ async def add_pages_callback_handler(callback_q):
         path_join(USER_DATA, user_id, sstorage.get_data(user_id, "editable_project")),
     )
 
+    msg = "Send additional images to add it to the end\n"
+    msg += "Type /stop to stop uploading files"
+
     await bot.answer_callback_query(callback_q.id)
-    await bot.send_message(user_id, "Send additional images to add it to the end")
+    await bot.send_message(user_id, msg)
 
 
 async def edit_offset_callback_handler(callback_q):
