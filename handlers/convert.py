@@ -45,7 +45,7 @@ def convert_text_to_pdf(user_id):
     # TODO: define text file place
     paragraphs = []
     title = ""
-    proj_name = suffix(upl_status.get_path())
+    proj_name = suffix(upl_status.get_path(user_id))
 
     add_section(user_id, proj_name, title, paragraphs)
 
