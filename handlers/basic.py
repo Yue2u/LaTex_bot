@@ -1,7 +1,10 @@
 from create_bot import hnd_ctrl
 from aiogram import types
 from .convert import handle_albums
-from .list_projects import list_projects_handler, register_callback_handlers
+from .list_projects import (
+    list_projects_handler,
+    register_list_projects_callback_handlers,
+)
 from .edit_project import register_edit_proj_callback_handlers
 from .new_project import register_new_proj_callback_handlers
 
@@ -16,14 +19,16 @@ def register_basic_handlers(dp):
     )
     dp.register_message_handler(basic_handler, content_types=[types.ContentType.ANY])
 
-    register_callback_handlers(dp)
+    register_list_projects_callback_handlers(dp)
     register_edit_proj_callback_handlers(dp)
     register_new_proj_callback_handlers(dp)
 
 
 async def start_message(message):
     msg = "Hi!\n"
-    msg += "This bot can transform your picture conspetcs into LaTex docs and store them\n"
+    msg += (
+        "This bot can transform your picture conspetcs into LaTex docs and store them\n"
+    )
     msg += "Type /convert to make temporary project\n"
     msg += "Type /new_project to create titled project and handle its options\n"
     msg += "Type /show_projects to look at projects you created"
@@ -117,7 +122,7 @@ async def basic_handler(message):
         None: none_pipeline_handler,
         "convert": convert_pipeline_handler,
         "new_proj": new_proj_pipeline_handler,
-        "edit_proj": edit_proj_pipeline_handler
+        "edit_proj": edit_proj_pipeline_handler,
     }
 
     await pipeline_dict[pipeline_type](message)

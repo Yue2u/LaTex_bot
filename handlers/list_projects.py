@@ -4,7 +4,7 @@ from aiogram.types.inline_keyboard import InlineKeyboardMarkup, InlineKeyboardBu
 from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, KeyboardButton
 
 
-def register_callback_handlers(dp):
+def register_list_projects_callback_handlers(dp):
     dp.register_callback_query_handler(
         edit_projects_callback, lambda c: c.data == "edit_project"
     )
