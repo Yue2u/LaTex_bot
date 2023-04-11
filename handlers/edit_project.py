@@ -60,15 +60,11 @@ async def add_pages_callback_handler(callback_q):
 
     upl_status.start_upload(
         user_id,
-        path_join(
-            USER_DATA, user_id, sstorage.get_data(user_id, "editable_project"), "images"
-        ),
+        path_join(USER_DATA, user_id, sstorage.get_data(user_id, "editable_project")),
     )
 
     await bot.answer_callback_query(callback_q.id)
-    await bot.send_message(
-        user_id, "Send additional images to add it to the end"
-    )
+    await bot.send_message(user_id, "Send additional images to add it to the end")
 
 
 async def edit_offset_callback_handler(callback_q):

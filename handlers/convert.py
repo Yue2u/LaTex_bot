@@ -6,10 +6,12 @@ from utils import (
     create_folder,
     recreate_folder,
     basement,
+    suffix,
 )
 from json_config import init_project_config
 from tex_to_pdf import make_pdf
 from create_bot import bot, upl_status, USER_DATA
+from text_to_tex import add_section, build_document
 
 
 def register_convert_handlers(dp):
@@ -26,14 +28,28 @@ def register_convert_handlers(dp):
 
 async def convert_message(message: types.Message):
     user_id = message.chat.id
-    upl_status.start_upload(user_id, path_join(USER_DATA, user_id, "tmp", "images"))
+    upl_status.start_upload(user_id, path_join(USER_DATA, user_id, "tmp"))
 
-    recreate_folder(basement(upl_status.get_path(user_id)))
+    recreate_folder(path_join(upl_status.get_path(user_id), "images"))
+    init_project_config(
+        path_join(upl_status.get_path(message.chat.id), "jsons", "config.json")
+    )
 
     msg = "Send pictures of conspect in right order, please.\n"
     msg += "Type /stop to stop uploading files"
     print("Started uploading pictures...")
     await message.answer(msg)
+
+
+def convert_text_to_pdf(user_id):
+    # TODO: define text file place
+    paragraphs = []
+    title = ""
+    proj_name = suffix(upl_status.get_path())
+
+    add_section(user_id, proj_name, title, paragraphs)
+
+    build_document(user_id, proj_name)
 
 
 async def stop_downloading_handler(message):  # TODO: make convertation
@@ -44,29 +60,17 @@ async def stop_downloading_handler(message):  # TODO: make convertation
     await message.answer(msg)
     await message.answer("Converting...")
 
-    init_project_config(
-        path_join(
-            basement(upl_status.get_path(message.chat.id)), "jsons", "config.json"
-        )
-    )
-    # pdf_path = await convert(upl_status.get_path(message.chat.id))
-    # message.answer_documnet(types.InputFile(pdf_path))
-
-
-async def convert(path):
-    make_pdf(path_join(path, "file.tex"))
-    return path_join(path, "file.pdf")
+    # convert_text_to_pdf(message.chat.id)
 
 
 async def save_files(files_id, user_id, path):
-    usr_data_p = path
-    create_folder(usr_data_p)
-    start_point = 1 + files_in_dir(usr_data_p)
+    create_folder(path)
+    start_point = 1 + files_in_dir(path)
 
     for n, file_id in enumerate(files_id, start_point):
         file = await bot.get_file(file_id)
         ext = get_ext(file.file_path)
-        await bot.download_file(file.file_path, path_join(usr_data_p, f"{n}.{ext}"))
+        await bot.download_file(file.file_path, path_join(path, f"{n}.{ext}"))
     upl_status.add_uploads(user_id, len(files_id))
 
 
@@ -74,6 +78,8 @@ async def handle_albums(message: types.Message, album):
     """This handler will receive a complete album of any type."""
     if not upl_status.is_uploading(message.chat.id):
         return
+
+    print("Started saving album...")
 
     files_id = []
     media_group = types.MediaGroup()
@@ -92,7 +98,9 @@ async def handle_albums(message: types.Message, album):
                 "This type of album is not supported by aiogram."
             )
     user_id = message.chat.id
-    await save_files(files_id, user_id, upl_status.get_path(user_id))
+    await save_files(
+        files_id, user_id, path_join(upl_status.get_path(user_id), "images")
+    )
 
 
 async def pictures_handler(message):
@@ -101,4 +109,6 @@ async def pictures_handler(message):
     photo = message.photo[-1] if message.photo else message.document
     print("Started saving...")
     user_id = message.chat.id
-    await save_files([photo.file_id], user_id, upl_status.get_path(user_id))
+    await save_files(
+        [photo.file_id], user_id, path_join(upl_status.get_path(user_id), "images")
+    )

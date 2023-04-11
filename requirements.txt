@@ -1,2 +1,3 @@
 aiogram==2.25.1
 LaTeXCompiler==1.0
+pylatex==1.4.1

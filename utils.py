@@ -36,6 +36,11 @@ def basement(path):
     return path.rsplit(os.sep, 1)[0]
 
 
+def suffix(path):
+    """Returns last element in path"""
+    return path.rsplit(os.sep, 1)[1]
+
+
 def list_projects(path):
     """List all projects folders except tmp"""
     if not os.path.exists(path):

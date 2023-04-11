@@ -34,7 +34,7 @@ async def np_title_handler(message):
     path = path_join(USER_DATA, user_id, title)
     create_folder(path)
 
-    upl_status.start_upload(user_id, path_join(USER_DATA, user_id, title, "images"))
+    upl_status.start_upload(user_id, path_join(USER_DATA, user_id, title))
     sstorage.set_data(user_id, "editable_project", title)
     init_project_config(CONFIG_TEMPLATE.format(user_id, title))
 
