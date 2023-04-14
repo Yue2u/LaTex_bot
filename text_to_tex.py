@@ -79,7 +79,7 @@ def build_document(uid: int, pr_name: str):
         )
 
     project.generate_tex(path_join(USER_DATA, uid, pr_name, pr_name))
-    # project.generate_pdf(path_join(USER_DATA, uid, pr_name, pr_name), clean_tex=False)
+    project.generate_pdf(path_join(USER_DATA, uid, pr_name, pr_name), clean_tex=False)
 
 
 # Example

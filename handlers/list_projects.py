@@ -23,6 +23,8 @@ async def list_projects_handler(message):  # TODO: add pagination
 
 
 async def edit_projects_callback(callback_q):
+    await bot.answer_callback_query(callback_q.id)
+    
     user_id = callback_q.from_user.id
     projects = sstorage.get_data(user_id, "projects_list")
 
@@ -34,5 +36,4 @@ async def edit_projects_callback(callback_q):
 
     hnd_ctrl.set_pipeline(user_id, "edit_proj")
 
-    await bot.answer_callback_query(callback_q.id)
     await bot.send_message(user_id, text=msg, reply_markup=ikbm)

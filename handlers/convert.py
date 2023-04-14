@@ -12,6 +12,7 @@ from json_config import init_project_config
 from tex_to_pdf import make_pdf
 from create_bot import bot, upl_status, USER_DATA
 from text_to_tex import add_section, build_document
+from tesseract_ocr_processing import convert_images_to_text
 
 
 def register_convert_handlers(dp):
@@ -30,7 +31,7 @@ async def convert_message(message: types.Message):
     user_id = message.chat.id
     upl_status.start_upload(user_id, path_join(USER_DATA, user_id, "tmp"))
 
-    recreate_folder(path_join(upl_status.get_path(user_id), "images"))
+    recreate_folder(path_join(upl_status.get_path(user_id)))
     init_project_config(
         path_join(upl_status.get_path(message.chat.id), "jsons", "config.json")
     )
@@ -42,25 +43,32 @@ async def convert_message(message: types.Message):
 
 
 def convert_text_to_pdf(user_id):
-    # TODO: define text file place
-    paragraphs = []
-    title = ""
+    # TODO: use ENV to config
     proj_name = suffix(upl_status.get_path(user_id))
 
+    paragraphs = convert_images_to_text(path_join(upl_status.get_path(user_id), "images"))
+    title = paragraphs[0]
+    paragraphs = paragraphs[1:]
+    
     add_section(user_id, proj_name, title, paragraphs)
-
     build_document(user_id, proj_name)
+
+    return path_join(upl_status.get_path(user_id), f"{proj_name}.pdf")
 
 
 async def stop_downloading_handler(message):  # TODO: make convertation
-    upl_status.stop_upload(message.chat.id)
+    user_id = message.chat.id
+
+    upl_status.stop_upload(user_id)
 
     msg = "Stopped saving conspect pictures\n"
-    msg += f"Uploaded {upl_status.uploads_count(message.chat.id)} pictures"
+    msg += f"Uploaded {upl_status.uploads_count(user_id)} pictures"
     await message.answer(msg)
     await message.answer("Converting...")
 
-    # convert_text_to_pdf(message.chat.id)
+    pdf_path = convert_text_to_pdf(user_id)
+    recreate_folder(path_join(upl_status.get_path(user_id), "images"))
+    await message.answer_document(open(pdf_path, "rb"))
 
 
 async def save_files(files_id, user_id, path):

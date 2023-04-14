@@ -1,3 +1,14 @@
 aiogram==2.25.1
 LaTeXCompiler==1.0
 pylatex==1.4.1
+opencv-python==4.7.0.72
+deskew==1.4.3
+scikit-image==0.20.0
+pytesseract==0.3.10
+Pillow==9.5.0
+numpy==1.23.5
+
+
+# You should also install:
+# TexLive (package texlive-full on linux), on Windows from installer
+# TesseractOCR (package tesseract-ocr on linux), on Windows from installer
