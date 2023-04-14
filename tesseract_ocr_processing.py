@@ -41,7 +41,7 @@ def get_image_text(image_path):
 def convert_images_to_text(images_path):
     lines_text = []
     for filename in os.listdir(images_path):
-        for line in get_image_text(path_join(images_path, filename)).split('\n'):
+        for line in get_image_text(path_join(images_path, filename)).split("\n"):
             if line.strip():
                 lines_text.append(line)
 

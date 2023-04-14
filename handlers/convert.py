@@ -46,10 +46,12 @@ def convert_text_to_pdf(user_id):
     # TODO: use ENV to config
     proj_name = suffix(upl_status.get_path(user_id))
 
-    paragraphs = convert_images_to_text(path_join(upl_status.get_path(user_id), "images"))
+    paragraphs = convert_images_to_text(
+        path_join(upl_status.get_path(user_id), "images")
+    )
     title = paragraphs[0]
     paragraphs = paragraphs[1:]
-    
+
     add_section(user_id, proj_name, title, paragraphs)
     build_document(user_id, proj_name)
 

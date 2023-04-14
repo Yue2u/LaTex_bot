@@ -12,3 +12,4 @@ numpy==1.23.5
 # You should also install:
 # TexLive (package texlive-full on linux), on Windows from installer
 # TesseractOCR (package tesseract-ocr on linux), on Windows from installer
+# TesseractOCR github: https://github.com/tesseract-ocr
