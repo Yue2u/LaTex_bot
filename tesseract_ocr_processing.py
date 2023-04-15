@@ -13,12 +13,13 @@ from utils import path_join
 
 def preprocess_image(image_path):
     image = np.array(Image.open(image_path))
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     grayscale = rgb2gray(image)
     deblured = cv2.GaussianBlur(grayscale, (5, 5), 0)
 
-    angle = determine_skew(deblured)
-    rotated = rotate(deblured, angle, resize=True) * 255
-    io.imsave(image_path, rotated.astype(np.uint8))
+    # angle = determine_skew(deblured)
+    # rotated = rotate(deblured, angle, resize=True) * 255
+    io.imsave(image_path)  # , rotated.astype(np.uint8)
 
 
 def get_image_text(image_path):
@@ -28,7 +29,7 @@ def get_image_text(image_path):
         pass
     image = Image.open(image_path)
 
-    model_name = "rus_htr"
+    model_name = "rus_htr_2"
     traineddata_dir = "tesseract_data"
     words_list_dir = "tesseract_data"
 
