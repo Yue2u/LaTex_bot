@@ -49,6 +49,8 @@ def convert_text_to_pdf(user_id):
     paragraphs = convert_images_to_text(
         path_join(upl_status.get_path(user_id), "images")
     )
+    if not paragraphs:
+        paragraphs = ["My section"]
     title = paragraphs[0]
     paragraphs = paragraphs[1:]
 

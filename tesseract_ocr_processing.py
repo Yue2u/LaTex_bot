@@ -12,21 +12,17 @@ from utils import path_join
 
 
 def preprocess_image(image_path):
+    path, ext = image_path.rsplit('.')
+    
     image = np.array(Image.open(image_path))
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    grayscale = rgb2gray(image)
-    deblured = cv2.GaussianBlur(grayscale, (5, 5), 0)
-
-    # angle = determine_skew(deblured)
-    # rotated = rotate(deblured, angle, resize=True) * 255
-    io.imsave(image_path)  # , rotated.astype(np.uint8)
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    ret, image = cv2.threshold(image, 95, 255, cv2.THRESH_BINARY)    
+    image = cv2.GaussianBlur(image, (7, 7), 0)
+    io.imsave(image_path, image.astype(np.uint8))
 
 
 def get_image_text(image_path):
-    try:
-        preprocess_image(image_path)
-    except Exception:
-        pass
+    preprocess_image(image_path)
     image = Image.open(image_path)
 
     model_name = "rus_htr_2"
