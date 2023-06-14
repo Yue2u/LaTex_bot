@@ -26,7 +26,7 @@ def write_project_config(path, cfg):
         return None
 
     with open(full_path, "w") as f:
-        json.dump(cfg, f)
+        json.dump(cfg, f, indent=4, ensure_ascii=False)
 
 
 def init_project_config(path):
@@ -36,7 +36,7 @@ def init_project_config(path):
     create_folder(basement(full_path))
 
     with open(full_path, "w") as f:
-        json.dump(cfg, f, indent=4)
+        json.dump(cfg, f, indent=4, ensure_ascii=False)
 
 
 def set_font_size(path, font_type):

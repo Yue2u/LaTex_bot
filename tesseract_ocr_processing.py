@@ -12,8 +12,6 @@ from utils import path_join
 
 
 def preprocess_image(image_path):
-    path, ext = image_path.rsplit('.')
-    
     image = np.array(Image.open(image_path))
     image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     ret, image = cv2.threshold(image, 95, 255, cv2.THRESH_BINARY)    

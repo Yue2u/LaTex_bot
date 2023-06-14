@@ -51,4 +51,4 @@ def list_projects(path):
 def dumps_message(message):
     """Returns meesage converted to json string"""
     msg = json.loads(str(message))
-    return json.dumps(msg, indent=4)
+    return json.dumps(msg, indent=4, ensure_ascii=False)

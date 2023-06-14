@@ -41,7 +41,7 @@ def add_section(uid: int, pr_name: str, title: str, paragraphs: list):
     with open(
         path_join(USER_DATA, uid, pr_name, "jsons", "sectionlist.json"), "w"
     ) as f:
-        json.dump(sectionlist, f)
+        json.dump(sectionlist, f, indent=4, ensure_ascii=False)
 
 
 def build_document(uid: int, pr_name: str):

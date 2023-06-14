@@ -11,5 +11,5 @@ class StatMiddleware(BaseMiddleware):
     async def on_process_message(self, message: types.Message, data: dict):
         with open("log.txt", "a") as f:
             f.write(f"{datetime.now()}:\n")
-            f.write(json.dumps(json.loads(str(message)), indent=4))
+            f.write(json.dumps(json.loads(str(message)), indent=4, ensure_ascii=False))
             f.write("\n\n")
