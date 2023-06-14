@@ -2,7 +2,8 @@ from create_bot import bot, hnd_ctrl, upl_status, sstorage, CONFIG_TEMPLATE, USE
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
 from aiogram.types.inline_keyboard import InlineKeyboardMarkup, InlineKeyboardButton
 from json_config import set_font_size, set_indent_size
-from utils import path_join
+from text_to_tex import delete_section, build_document
+from utils import path_join, list_articles, extract_proj_name
 
 
 def register_edit_proj_callback_handlers(dp):
@@ -16,6 +17,9 @@ def register_edit_proj_callback_handlers(dp):
         add_pages_callback_handler, lambda c: c.data == "edit_add_pages"
     )
     dp.register_callback_query_handler(
+        delete_article_callback_handler, lambda c: c.data == "edit_del_article"
+    )
+    dp.register_callback_query_handler(
         small_font_size, lambda c: c.data == "set_small_font_size"
     )
     dp.register_callback_query_handler(
@@ -24,6 +28,14 @@ def register_edit_proj_callback_handlers(dp):
     dp.register_callback_query_handler(
         large_font_size, lambda c: c.data == "set_large_font_size"
     )
+
+
+async def is_working(user_id, callback_q):
+    if not hnd_ctrl.is_pipelining(user_id):
+        await bot.answer_callback_query(callback_q.id)
+        await bot.send_message(user_id, "There isn't any project in work now")
+        return False
+    return True
 
 
 async def get_project_title(message):
@@ -47,6 +59,7 @@ async def get_project_title(message):
         InlineKeyboardButton("Offset", callback_data="edit_offset"),
         InlineKeyboardButton("Font size", callback_data="edit_font_size"),
         InlineKeyboardButton("Add pages", callback_data="edit_add_pages"),
+        InlineKeyboardButton("Delete article", callback_data="edit_del_article"),
     )
 
     await message.answer(msg1, reply_markup=ReplyKeyboardRemove())
@@ -56,6 +69,10 @@ async def get_project_title(message):
 async def add_pages_callback_handler(callback_q):
     user_id = callback_q.from_user.id
 
+    if not await is_working(user_id, callback_q):
+        return
+
+    hnd_ctrl.next_handler(user_id)
     hnd_ctrl.next_handler(user_id)
 
     upl_status.start_upload(
@@ -70,8 +87,58 @@ async def add_pages_callback_handler(callback_q):
     await bot.send_message(user_id, msg)
 
 
+async def delete_article_callback_handler(callback_q):
+    user_id = callback_q.from_user.id
+
+    if not await is_working(user_id, callback_q):
+        return
+
+    hnd_ctrl.next_handler(user_id)
+
+    msg = "Choose title to delete from the list below:\n"
+
+    path = CONFIG_TEMPLATE.format(
+        user_id, sstorage.get_data(user_id, "editable_project")
+    )
+
+    articles = list_articles(path)
+    sstorage.set_data(user_id, "articles_list", articles)
+    msg += "\n".join([f'"{art}"' for art in articles])
+
+    await bot.answer_callback_query(callback_q.id)
+    await bot.send_message(user_id, msg)
+
+
+async def delete_article_handler(message):
+    user_id = message.chat.id
+    articles_list = sstorage.get_data(user_id, "articles_list")
+
+    if message.text not in articles_list:
+        hnd_ctrl.complete_pipeline(user_id)
+        await message.answer(f'There is no article "{message.text}", try again')
+        return
+
+    proj_name = sstorage.get_data(user_id, "editable_project")
+
+    delete_section(
+        user_id, sstorage.get_data(user_id, "editable_project"), message.text
+    )
+    build_document(user_id, sstorage.get_data(user_id, "editable_project"))
+    hnd_ctrl.complete_pipeline(user_id)
+
+    await message.answer(
+        f'Article "{message.text}" successfully deleted\nSending file...'
+    )
+    await message.answer_document(
+        open(path_join(USER_DATA, user_id, proj_name, proj_name + ".pdf"), "rb")
+    )
+
+
 async def edit_offset_callback_handler(callback_q):
     user_id = callback_q.from_user.id
+
+    if not await is_working(user_id, callback_q):
+        return
 
     await bot.answer_callback_query(callback_q.id)
     await bot.send_message(user_id, "Input document offset in mm")
@@ -96,6 +163,10 @@ async def offset_input_handler(message):
 
 async def edit_font_size_callback_handler(callback_q):
     user_id = callback_q.from_user.id
+
+    if not await is_working(user_id, callback_q):
+        return
+
     await bot.answer_callback_query(callback_q.id)
 
     inkm = InlineKeyboardMarkup().row(
@@ -109,6 +180,10 @@ async def edit_font_size_callback_handler(callback_q):
 
 async def small_font_size(callback_q):
     user_id = callback_q.from_user.id
+
+    if not await is_working(user_id, callback_q):
+        return
+
     path = CONFIG_TEMPLATE.format(
         user_id, sstorage.get_data(user_id, "editable_project")
     )
@@ -122,6 +197,10 @@ async def small_font_size(callback_q):
 
 async def medium_font_size(callback_q):
     user_id = callback_q.from_user.id
+
+    if not await is_working(user_id, callback_q):
+        return
+
     path = CONFIG_TEMPLATE.format(
         user_id, sstorage.get_data(user_id, "editable_project")
     )
@@ -135,6 +214,10 @@ async def medium_font_size(callback_q):
 
 async def large_font_size(callback_q):
     user_id = callback_q.from_user.id
+
+    if not await is_working(user_id, callback_q):
+        return
+
     path = CONFIG_TEMPLATE.format(
         user_id, sstorage.get_data(user_id, "editable_project")
     )

@@ -9,6 +9,7 @@ from handlers.new_project import np_start, np_title_handler, np_offset_input_han
 from handlers.edit_project import (
     get_project_title,
     offset_input_handler,
+    delete_article_handler,
 )
 
 
@@ -31,6 +32,7 @@ edit_proj_pipeline = HandlersPipeline(
     (
         get_project_title,
         offset_input_handler,
+        delete_article_handler,
         (handle_albums, pictures_handler),
         stop_downloading_handler,
     ),

@@ -9,7 +9,6 @@ from utils import (
     suffix,
 )
 from json_config import init_project_config
-from tex_to_pdf import make_pdf
 from create_bot import bot, upl_status, USER_DATA
 from text_to_tex import add_section, build_document
 from tesseract_ocr_processing import convert_images_to_text

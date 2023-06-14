@@ -38,3 +38,6 @@ class HandlerController:
     def complete_pipeline(self, user_id):
         self.user_pipeline[user_id] = None
         self.user_step[user_id] = 0
+
+    def is_pipelining(self, user_id):
+        return self.user_pipeline[user_id] is not None

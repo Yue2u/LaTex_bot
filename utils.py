@@ -48,7 +48,19 @@ def list_projects(path):
     return [folder for folder in os.listdir(path) if folder != "tmp"]
 
 
+def list_articles(path):
+    """List all articles of project"""
+    path = path.rsplit(os.sep, 2)[0]
+    with open(path_join(path, "jsons", "sectionlist.json"), "r") as f:
+        return json.load(f)
+
+
+def extract_proj_name(path):
+    """Extract proj name from sstorage 'editable_proj' key"""
+    return suffix(suffix(basement(basement(path))))
+
+
 def dumps_message(message):
-    """Returns meesage converted to json string"""
+    """Returns message converted to json string"""
     msg = json.loads(str(message))
     return json.dumps(msg, indent=4, ensure_ascii=False)

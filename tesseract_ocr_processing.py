@@ -14,7 +14,7 @@ from utils import path_join
 def preprocess_image(image_path):
     image = np.array(Image.open(image_path))
     image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-    ret, image = cv2.threshold(image, 95, 255, cv2.THRESH_BINARY)    
+    ret, image = cv2.threshold(image, 95, 255, cv2.THRESH_BINARY)
     image = cv2.GaussianBlur(image, (7, 7), 0)
     io.imsave(image_path, image.astype(np.uint8))
 

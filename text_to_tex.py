@@ -12,7 +12,8 @@ import os
 
 def add_section(uid: int, pr_name: str, title: str, paragraphs: list):
     section = Document(
-        documentclass="subfiles", document_options=[NoEscape("../main.tex")]
+        documentclass="subfiles",
+        document_options=[NoEscape(path_join("..", "main.tex"))],
     )
     section.packages.append(Package("subfiles"))
 
@@ -44,38 +45,54 @@ def add_section(uid: int, pr_name: str, title: str, paragraphs: list):
         json.dump(sectionlist, f, indent=4, ensure_ascii=False)
 
 
+def delete_section(uid: int, pr_name: str, title: str):
+    with open(
+        path_join(USER_DATA, uid, pr_name, "jsons", "sectionlist.json"), "r"
+    ) as f:
+        sectionlist = json.load(f)
+    index = len(sectionlist) - 1 - sectionlist[::-1].index(title)
+
+    del sectionlist[index]
+    os.remove(path_join(USER_DATA, uid, pr_name, "sections", f"{index}.tex"))
+    for i in range(index + 1, len(sectionlist) + 1):
+        os.rename(
+            path_join(USER_DATA, uid, pr_name, "sections", f"{i}.tex"),
+            path_join(USER_DATA, uid, pr_name, "sections", f"{i - 1}.tex"),
+        )
+
+    with open(
+        path_join(USER_DATA, uid, pr_name, "jsons", "sectionlist.json"), "w"
+    ) as f:
+        json.dump(sectionlist, f, indent=4, ensure_ascii=False)
+
+
 def build_document(uid: int, pr_name: str):
     with open(path_join(USER_DATA, uid, pr_name, "jsons", "config.json"), "r") as f:
         params = json.load(f)
     fontsize = params["font_size"]
     margin = params["indent"]
+
     project = Document(
         documentclass="extarticle", fontenc="T1, T2A", document_options=f"{fontsize}pt"
     )
     project.packages.append(Package("extsizes"))
     project.packages.append(Package("geometry", options=f"a4paper,margin={margin}mm"))
-    project.packages.append(
-        Package("indentfirst")
-    )  # добавляет отступ у первого параграфа раздела
+    project.packages.append(Package("indentfirst"))
     project.packages.append(Package("subfiles"))
     project.packages.append(Package("babel", options="russian,english"))
     project.preamble.append(Command("title", pr_name))
     project.append(NoEscape(r"\maketitle"))
-
-    # Example
-    # with project.create(Section("Это раздел из основного документа")):
-    #     project.append("Проверка русского текста. Этот раздел можно убрать. ")
-    #     project.append("Дальше идут разделы добавленные с помощью add_section")
 
     with open(
         path_join(USER_DATA, uid, pr_name, "jsons", "sectionlist.json"), "r"
     ) as f:
         sectionlist = json.load(f)
 
-    n = len(sectionlist)
-    for i in range(n):
+    for i in range(len(sectionlist)):
         project.append(
-            Command(command="subfile", arguments=NoEscape(f"./sections/{i}.tex"))
+            Command(
+                command="subfile", arguments=NoEscape(path_join("sections", f"{i}.tex"))
+            )
         )
 
     project.generate_tex(path_join(USER_DATA, uid, pr_name, pr_name))
