@@ -42,20 +42,19 @@ async def convert_message(message: types.Message):
     await message.answer(msg)
 
 
-async def convert_text_to_pdf(user_id):
+def convert_text_to_pdf(user_id):
     # TODO: use ENV to config
     proj_name = suffix(upl_status.get_path(user_id))
 
     paragraphs = convert_images_to_text(
         path_join(upl_status.get_path(user_id), "images")
     )
-    json_text = await recognize(path_join(upl_status.get_path(user_id), "images"), SERVER_ADDRESS)
     if not paragraphs:
         paragraphs = ["My section"]
     title = paragraphs[0]
     paragraphs = paragraphs[1:]
 
-    add_section(user_id, proj_name, title, json_text)
+    add_section(user_id, proj_name, title, paragraphs)
     build_document(user_id, proj_name)
 
     return path_join(upl_status.get_path(user_id), f"{proj_name}.pdf")
@@ -71,7 +70,11 @@ async def stop_downloading_handler(message):  # TODO: make convertation
     await message.answer(msg)
     await message.answer("Converting...")
 
-    pdf_path = await convert_text_to_pdf(user_id)
+    json_text = await recognize(path_join(upl_status.get_path(user_id), "images"), SERVER_ADDRESS)
+
+    print(json_text)
+
+    pdf_path = convert_text_to_pdf(user_id)
     recreate_folder(path_join(upl_status.get_path(user_id), "images"))
     await message.answer_document(open(pdf_path, "rb"))
 
