@@ -15,7 +15,7 @@ async def list_projects_handler(message):  # TODO: add pagination
     projects = list_projects(path_join(USER_DATA, user_id))
     msg = "Your projects:\n" + "\n".join(projects)
 
-    ikb = InlineKeyboardButton("Edit projects", callback_data="edit_project")
+    ikb = InlineKeyboardButton("Manage projects", callback_data="edit_project")
     ikbm = InlineKeyboardMarkup().add(ikb)
 
     sstorage.set_data(user_id, "projects_list", projects)
@@ -28,7 +28,11 @@ async def edit_projects_callback(callback_q):
     user_id = callback_q.from_user.id
     projects = sstorage.get_data(user_id, "projects_list")
 
-    msg = "Chooose project for editing:\n"
+    if projects is None:
+        projects = list_projects(path_join(USER_DATA, user_id))
+        sstorage.set_data(user_id, "projects_list", projects)
+
+    msg = "Select project to manage:\n"
 
     ikbm = ReplyKeyboardMarkup(resize_keyboard=True)
     for proj in projects:

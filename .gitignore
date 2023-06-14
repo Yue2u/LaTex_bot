@@ -2,4 +2,5 @@ user_data/*
 __pycache__/*
 handlers/__pycache__/*
 middlewares/__pycache__/*
+server/*
 log.txt

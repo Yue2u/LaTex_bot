@@ -10,6 +10,7 @@ from handlers.edit_project import (
     get_project_title,
     offset_input_handler,
     delete_article_handler,
+    overleaf_login_handler
 )
 
 
@@ -33,6 +34,7 @@ edit_proj_pipeline = HandlersPipeline(
         get_project_title,
         offset_input_handler,
         delete_article_handler,
+        overleaf_login_handler,
         (handle_albums, pictures_handler),
         stop_downloading_handler,
     ),

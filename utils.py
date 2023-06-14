@@ -60,6 +60,10 @@ def extract_proj_name(path):
     return suffix(suffix(basement(basement(path))))
 
 
+def get_abs_path():
+    return os.getcwd()
+
+
 def dumps_message(message):
     """Returns message converted to json string"""
     msg = json.loads(str(message))

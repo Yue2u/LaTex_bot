@@ -3,6 +3,8 @@ from aiogram.types.reply_keyboard import ReplyKeyboardRemove
 from aiogram.types.inline_keyboard import InlineKeyboardMarkup, InlineKeyboardButton
 from json_config import set_font_size, set_indent_size
 from text_to_tex import delete_section, build_document
+from compress_zip import make_zip
+from overleaf_upload import upload
 from utils import path_join, list_articles, extract_proj_name
 
 
@@ -18,6 +20,12 @@ def register_edit_proj_callback_handlers(dp):
     )
     dp.register_callback_query_handler(
         delete_article_callback_handler, lambda c: c.data == "edit_del_article"
+    )
+    dp.register_callback_query_handler(
+        get_source_callback_handler, lambda c: c.data == "edit_get_source"
+    )
+    dp.register_callback_query_handler(
+        upload_overleaf_callback_handler, lambda c: c.data == "edit_upload_overleaf"
     )
     dp.register_callback_query_handler(
         small_font_size, lambda c: c.data == "set_small_font_size"
@@ -52,14 +60,23 @@ async def get_project_title(message):
 
     sstorage.set_data(user_id, "editable_project", message.text)
 
-    msg1 = f"Start editing project '{message.text}'\n"
+    msg1 = f"Start managing project '{message.text}'\n"
     msg2 = "Choose option to edit"
 
-    inkm = InlineKeyboardMarkup().row(
-        InlineKeyboardButton("Offset", callback_data="edit_offset"),
-        InlineKeyboardButton("Font size", callback_data="edit_font_size"),
-        InlineKeyboardButton("Add pages", callback_data="edit_add_pages"),
-        InlineKeyboardButton("Delete article", callback_data="edit_del_article"),
+    inkm = (
+        InlineKeyboardMarkup()
+        .row(
+            InlineKeyboardButton("Offset", callback_data="edit_offset"),
+            InlineKeyboardButton("Font size", callback_data="edit_font_size"),
+        )
+        .row(
+            InlineKeyboardButton("Add pages", callback_data="edit_add_pages"),
+            InlineKeyboardButton("Delete article", callback_data="edit_del_article"),
+        )
+        .row(
+            InlineKeyboardButton("Get source code", callback_data="edit_get_source"),
+            InlineKeyboardButton("Upload to overleaf", callback_data="edit_upload_overleaf")
+        )
     )
 
     await message.answer(msg1, reply_markup=ReplyKeyboardRemove())
@@ -72,6 +89,7 @@ async def add_pages_callback_handler(callback_q):
     if not await is_working(user_id, callback_q):
         return
 
+    hnd_ctrl.next_handler(user_id)
     hnd_ctrl.next_handler(user_id)
     hnd_ctrl.next_handler(user_id)
 
@@ -132,6 +150,57 @@ async def delete_article_handler(message):
     await message.answer_document(
         open(path_join(USER_DATA, user_id, proj_name, proj_name + ".pdf"), "rb")
     )
+
+
+async def get_source_callback_handler(callback_q):
+    user_id = callback_q.from_user.id
+
+    if not await is_working(user_id, callback_q):
+        return
+
+    await bot.answer_callback_query(callback_q.id)
+    await bot.send_message(user_id, "Making zip of source files...")
+    zip_path = make_zip(user_id, sstorage.get_data(user_id, "editable_project"))
+    await bot.send_document(user_id, open(zip_path, "rb"))
+
+
+async def upload_overleaf_callback_handler(callback_q):
+    user_id = callback_q.from_user.id
+
+    if not await is_working(user_id, callback_q):
+        return
+
+    hnd_ctrl.next_handler(user_id)
+    hnd_ctrl.next_handler(user_id)
+
+    await bot.answer_callback_query(callback_q.id)
+    msg = 'Enter your overleaf email and password (we don\'t save it anywhere) in next format:\n'
+    msg += '"email password" (email whitespace password)'
+    await bot.send_message(user_id, msg)
+
+
+async def overleaf_login_handler(message):
+    user_id = message.chat.id
+
+    data = message.text.split(' ')
+    if len(data) != 2:
+        hnd_ctrl.complete_pipeline(user_id)
+        await message.answer("Wrong format. Try again")
+        return
+
+    email, password = data
+
+    make_zip(user_id, sstorage.get_data(user_id, "editable_project"))
+    try:
+        upload(email, password, user_id, sstorage.get_data(user_id, "editable_project"))
+    except Exception as ex:
+        print(ex)
+        hnd_ctrl.complete_pipeline(user_id)
+        await message.answer("Something went wrong...\nTry again later.")
+        return
+
+    hnd_ctrl.complete_pipeline(user_id)
+    await message.answer("Your project was successfully uploaded to overleaf!")
 
 
 async def edit_offset_callback_handler(callback_q):
