@@ -45,5 +45,4 @@ async def recognize(images_path, url):
                 result.append(
                     (path_join(proj_path, "images_in_use", f"img{files_amount}.png"), t)
                 )
-        print(result)
         return result
