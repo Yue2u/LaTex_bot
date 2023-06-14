@@ -25,15 +25,14 @@ async def recognize(images_path, url):
         if resp.status != 200:
             raise ValueError("Something went wrong. Try later")
         text = await resp.text()
+        text = text[1:-1].replace("\\", "")
         tokens = json.loads(text)
-        print(text, type(text))
-        print(tokens, type(tokens))
 
         result = []
         for item in tokens["data"]:
-            t, data = item[0], item[1]
+            t, data = item["type"], item["data"]
             if t != 2:
-                result.append((t, data))
+                result.append((data, t))
             else:
                 proj_path = basement(images_path)
                 create_folder(path_join(proj_path, "images_in_use"))
@@ -44,6 +43,7 @@ async def recognize(images_path, url):
                 ) as f:
                     f.write(base64.b64decode(data.encode("utf-8")))
                 result.append(
-                    (t, path_join(proj_path, "images_in_use", f"img{files_amount}.png"))
+                    (path_join(proj_path, "images_in_use", f"img{files_amount}.png"), t)
                 )
+        print(result)
         return result

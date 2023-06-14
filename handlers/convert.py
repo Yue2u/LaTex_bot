@@ -49,7 +49,7 @@ def convert_text_to_pdf(user_id, tokens):
     title = ""
     for t, data in tokens:
         if t == 0:
-            title = t
+            title = data
             break
 
     # paragraphs = convert_images_to_text(
@@ -76,9 +76,14 @@ async def stop_downloading_handler(message):  # TODO: make convertation
     await message.answer(msg)
     await message.answer("Converting...")
 
-    tokens = await recognize(
-        path_join(upl_status.get_path(user_id), "images"), SERVER_ADDRESS
-    )
+    tokens = []
+    try:
+        tokens = await recognize(
+            path_join(upl_status.get_path(user_id), "images"), SERVER_ADDRESS
+        )
+    except Exception:
+        await message.answer("Something went wrong. Try again later...")
+        return
 
     pdf_path = convert_text_to_pdf(user_id, tokens)
     recreate_folder(path_join(upl_status.get_path(user_id), "images"))
