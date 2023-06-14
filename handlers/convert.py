@@ -9,9 +9,10 @@ from utils import (
     suffix,
 )
 from json_config import init_project_config
-from create_bot import bot, upl_status, USER_DATA
+from create_bot import bot, upl_status, USER_DATA, SERVER_ADDRESS
 from text_to_tex import add_section, build_document
 from tesseract_ocr_processing import convert_images_to_text
+from client import recognize
 
 
 def register_convert_handlers(dp):
@@ -68,6 +69,8 @@ async def stop_downloading_handler(message):  # TODO: make convertation
     msg += f"Uploaded {upl_status.uploads_count(user_id)} pictures"
     await message.answer(msg)
     await message.answer("Converting...")
+
+    text = await recognize(path_join(upl_status.get_path(user_id), "images"), SERVER_ADDRESS)
 
     pdf_path = convert_text_to_pdf(user_id)
     recreate_folder(path_join(upl_status.get_path(user_id), "images"))

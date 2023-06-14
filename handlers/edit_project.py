@@ -75,7 +75,9 @@ async def get_project_title(message):
         )
         .row(
             InlineKeyboardButton("Get source code", callback_data="edit_get_source"),
-            InlineKeyboardButton("Upload to overleaf", callback_data="edit_upload_overleaf")
+            InlineKeyboardButton(
+                "Upload to overleaf", callback_data="edit_upload_overleaf"
+            ),
         )
     )
 
@@ -174,7 +176,7 @@ async def upload_overleaf_callback_handler(callback_q):
     hnd_ctrl.next_handler(user_id)
 
     await bot.answer_callback_query(callback_q.id)
-    msg = 'Enter your overleaf email and password (we don\'t save it anywhere) in next format:\n'
+    msg = "Enter your overleaf email and password (we don't save it anywhere) in next format:\n"
     msg += '"email password" (email whitespace password)'
     await bot.send_message(user_id, msg)
 
@@ -182,7 +184,7 @@ async def upload_overleaf_callback_handler(callback_q):
 async def overleaf_login_handler(message):
     user_id = message.chat.id
 
-    data = message.text.split(' ')
+    data = message.text.split(" ")
     if len(data) != 2:
         hnd_ctrl.complete_pipeline(user_id)
         await message.answer("Wrong format. Try again")

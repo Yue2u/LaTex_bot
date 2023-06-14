@@ -10,7 +10,7 @@ from handlers.edit_project import (
     get_project_title,
     offset_input_handler,
     delete_article_handler,
-    overleaf_login_handler
+    overleaf_login_handler,
 )
 
 
