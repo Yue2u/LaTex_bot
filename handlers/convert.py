@@ -49,12 +49,13 @@ def convert_text_to_pdf(user_id):
     paragraphs = convert_images_to_text(
         path_join(upl_status.get_path(user_id), "images")
     )
+    json_text = await recognize(path_join(upl_status.get_path(user_id), "images"), SERVER_ADDRESS)
     if not paragraphs:
         paragraphs = ["My section"]
     title = paragraphs[0]
     paragraphs = paragraphs[1:]
 
-    add_section(user_id, proj_name, title, paragraphs)
+    add_section(user_id, proj_name, title, json_text)
     build_document(user_id, proj_name)
 
     return path_join(upl_status.get_path(user_id), f"{proj_name}.pdf")
@@ -69,8 +70,6 @@ async def stop_downloading_handler(message):  # TODO: make convertation
     msg += f"Uploaded {upl_status.uploads_count(user_id)} pictures"
     await message.answer(msg)
     await message.answer("Converting...")
-
-    text = await recognize(path_join(upl_status.get_path(user_id), "images"), SERVER_ADDRESS)
 
     pdf_path = convert_text_to_pdf(user_id)
     recreate_folder(path_join(upl_status.get_path(user_id), "images"))

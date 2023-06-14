@@ -10,7 +10,7 @@ import os
 # На устройстве на котором стоит бот должен быть установлен например полный TeXLive, чтобы в pdf компилировать
 
 
-def add_section(uid: int, pr_name: str, title: str, paragraphs: list):
+def add_section(uid: int, pr_name: str, title: str, items: list):
     section = Document(
         documentclass="subfiles",
         document_options=[NoEscape(path_join("..", "main.tex"))],
@@ -19,9 +19,21 @@ def add_section(uid: int, pr_name: str, title: str, paragraphs: list):
 
     # пока умеем только прикреплять параграфы с текстом
     with section.create(Section(title)):
-        for par in paragraphs:
-            section.append(par)
-            section.append(Command(command="par"))
+        prev_type = -1
+        for item in items:
+            cur_type = item[1]
+            if prev_type != -1 and cur_type != prev_type:
+                section.append(Command(command='par'))
+            if item[1] == 0:
+                section.append(item[0] + ' ')
+            elif item[1] == 1:
+                section.append(NoEscape(rf"${item[0]}$ "))
+            elif item[1] == 2:
+                path_to_image = item[0]
+                section.append(NoEscape(r"\begin{center}"))
+                section.append(NoEscape(r"\includegraphics[width=7cm]" + "{" + path_to_image + "}"))
+                section.append(NoEscape(r"\end{center}"))
+            prev_type = item[1]
 
     # если добавляем первый раздел, то автоматически создадутся нужная папка и json
     path = path_join(USER_DATA, uid, pr_name, "sections")
@@ -78,6 +90,7 @@ def build_document(uid: int, pr_name: str):
     project.packages.append(Package("extsizes"))
     project.packages.append(Package("geometry", options=f"a4paper,margin={margin}mm"))
     project.packages.append(Package("indentfirst"))
+    project.packages.append(Package('graphicx'))
     project.packages.append(Package("subfiles"))
     project.packages.append(Package("babel", options="russian,english"))
     project.preamble.append(Command("title", pr_name))
