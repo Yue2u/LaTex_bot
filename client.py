@@ -2,6 +2,7 @@ from create_bot import client
 import base64
 from utils import path_join
 import json
+from utils import basement, create_folder, path_join, files_in_dir
 import os
 
 
@@ -18,9 +19,31 @@ async def recognize(images_path, url):
         encoded_images[idx] = encoded
 
     data = json.dumps(encoded_images, indent=4, ensure_ascii=False)
-    async with client.post(url + '/process', data=data, headers={"ngrok-skip-browser-warning": "1"}) as resp:
+    async with client.post(
+        url + "/process", data=data, headers={"ngrok-skip-browser-warning": "1"}
+    ) as resp:
         if resp.status != 200:
             raise ValueError("Something went wrong. Try later")
         text = await resp.text()
-        print(text)
-        return json.loads(text)
+        tokens = json.loads(text)
+        print(text, type(text))
+        print(tokens, type(tokens))
+
+        result = []
+        for item in tokens["data"]:
+            t, data = item[0], item[1]
+            if t != 2:
+                result.append((t, data))
+            else:
+                proj_path = basement(images_path)
+                create_folder(path_join(proj_path, "images_in_use"))
+                files_amount = files_in_dir(path_join(proj_path, "images_in_use"))
+                with open(
+                    path_join(proj_path, "images_in_use", f"img{files_amount}.png"),
+                    "wb",
+                ) as f:
+                    f.write(base64.b64decode(data.encode("utf-8")))
+                result.append(
+                    (t, path_join(proj_path, "images_in_use", f"img{files_amount}.png"))
+                )
+        return result

@@ -42,19 +42,25 @@ async def convert_message(message: types.Message):
     await message.answer(msg)
 
 
-def convert_text_to_pdf(user_id):
+def convert_text_to_pdf(user_id, tokens):
     # TODO: use ENV to config
     proj_name = suffix(upl_status.get_path(user_id))
 
-    paragraphs = convert_images_to_text(
-        path_join(upl_status.get_path(user_id), "images")
-    )
-    if not paragraphs:
-        paragraphs = ["My section"]
-    title = paragraphs[0]
-    paragraphs = paragraphs[1:]
+    title = ""
+    for t, data in tokens:
+        if t == 0:
+            title = t
+            break
 
-    add_section(user_id, proj_name, title, paragraphs)
+    # paragraphs = convert_images_to_text(
+    #     path_join(upl_status.get_path(user_id), "images")
+    # )
+    # if not paragraphs:
+    #     paragraphs = ["My section"]
+    # title = paragraphs[0]
+    # paragraphs = paragraphs[1:]
+
+    add_section(user_id, proj_name, title, tokens)
     build_document(user_id, proj_name)
 
     return path_join(upl_status.get_path(user_id), f"{proj_name}.pdf")
@@ -70,11 +76,11 @@ async def stop_downloading_handler(message):  # TODO: make convertation
     await message.answer(msg)
     await message.answer("Converting...")
 
-    json_text = await recognize(path_join(upl_status.get_path(user_id), "images"), SERVER_ADDRESS)
+    tokens = await recognize(
+        path_join(upl_status.get_path(user_id), "images"), SERVER_ADDRESS
+    )
 
-    print(json_text)
-
-    pdf_path = convert_text_to_pdf(user_id)
+    pdf_path = convert_text_to_pdf(user_id, tokens)
     recreate_folder(path_join(upl_status.get_path(user_id), "images"))
     await message.answer_document(open(pdf_path, "rb"))
 

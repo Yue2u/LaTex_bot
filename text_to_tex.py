@@ -23,15 +23,17 @@ def add_section(uid: int, pr_name: str, title: str, items: list):
         for item in items:
             cur_type = item[1]
             if prev_type != -1 and cur_type != prev_type:
-                section.append(Command(command='par'))
+                section.append(Command(command="par"))
             if item[1] == 0:
-                section.append(item[0] + ' ')
+                section.append(item[0] + " ")
             elif item[1] == 1:
                 section.append(NoEscape(rf"${item[0]}$ "))
             elif item[1] == 2:
                 path_to_image = item[0]
                 section.append(NoEscape(r"\begin{center}"))
-                section.append(NoEscape(r"\includegraphics[width=7cm]" + "{" + path_to_image + "}"))
+                section.append(
+                    NoEscape(r"\includegraphics[width=7cm]" + "{" + path_to_image + "}")
+                )
                 section.append(NoEscape(r"\end{center}"))
             prev_type = item[1]
 
@@ -90,7 +92,7 @@ def build_document(uid: int, pr_name: str):
     project.packages.append(Package("extsizes"))
     project.packages.append(Package("geometry", options=f"a4paper,margin={margin}mm"))
     project.packages.append(Package("indentfirst"))
-    project.packages.append(Package('graphicx'))
+    project.packages.append(Package("graphicx"))
     project.packages.append(Package("subfiles"))
     project.packages.append(Package("babel", options="russian,english"))
     project.preamble.append(Command("title", pr_name))
