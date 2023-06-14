@@ -42,7 +42,7 @@ async def convert_message(message: types.Message):
     await message.answer(msg)
 
 
-def convert_text_to_pdf(user_id):
+async def convert_text_to_pdf(user_id):
     # TODO: use ENV to config
     proj_name = suffix(upl_status.get_path(user_id))
 
@@ -71,7 +71,7 @@ async def stop_downloading_handler(message):  # TODO: make convertation
     await message.answer(msg)
     await message.answer("Converting...")
 
-    pdf_path = convert_text_to_pdf(user_id)
+    pdf_path = await convert_text_to_pdf(user_id)
     recreate_folder(path_join(upl_status.get_path(user_id), "images"))
     await message.answer_document(open(pdf_path, "rb"))
 
